@@ -22,6 +22,8 @@ def lambda_handler(event, context):
         MediaRegion="us-east-1"
     )
 
+
+
     meeting = meeting_response["Meeting"]
 
     # Create a bot attendee
