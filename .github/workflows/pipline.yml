@@ -1,4 +1,4 @@
-name: "Deploy ${{ github.repository }} CDK Stack"
+name: "Deploy meet_chime.OBS CDK Stack"
 on:
   push:
     branches:
