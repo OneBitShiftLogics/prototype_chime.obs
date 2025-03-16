@@ -4,7 +4,8 @@ on:
     branches:
       - main
     paths:
-      - "${{ github.repository }}/**"
+      # - "${{ github.repository }}/**"
+      - meet_ch.obs/**  # Runs only if files in the "meet_ch.obs" folder change
       # - "plan_obs/**"  # Runs only if files in the "plan_obs" folder change
 
 jobs:
