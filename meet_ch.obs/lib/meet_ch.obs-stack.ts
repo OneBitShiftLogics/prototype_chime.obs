@@ -49,6 +49,7 @@ export class MeetChObsStack extends cdk.Stack {
         // Lambda to create meeting
         const startMeetingLambda = new lambda.Function(this, 'StartMeetingLambda', {
             runtime: lambda.Runtime.PYTHON_3_9,
+            name: 'start_meeting',
             handler: 'start_meeting.lambda_handler',
             code: lambda.Code.fromAsset('lambda'),
             environment: {
