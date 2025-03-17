@@ -1,27 +1,3 @@
-//-----------------------------------------------------------
-// import * as cdk from 'aws-cdk-lib';
-  // import { Construct } from 'constructs';
-  // // import * as sqs from 'aws-cdk-lib/aws-sqs';
-
-  // export class MeetChObsStack extends cdk.Stack {
-  //   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-  //     super(scope, id, props);
-
-  //     // The code that defines your stack goes here
-
-  //     // example resource
-  //     // const queue = new sqs.Queue(this, 'MeetChObsQueue', {
-  //     //   visibilityTimeout: cdk.Duration.seconds(300)
-  //     // });
-  //   }
-  // }
-
-
-
-// The following code snippet is the complete implementation of the MeetChObsStack class.
-
-
-
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
@@ -32,7 +8,7 @@ export class MeetChObsStack extends cdk.Stack {
     constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        // Create DynamoDB Table to store meeting details
+        // Create DynamoDB Table
         const meetingsTable = new dynamodb.Table(this, 'MeetingsTable', {
             partitionKey: { name: 'MeetingId', type: dynamodb.AttributeType.STRING },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -46,11 +22,11 @@ export class MeetChObsStack extends cdk.Stack {
         lambdaRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"));
         lambdaRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonChimeFullAccess"));
 
-        // Lambda to create meeting
+        // **Fix: Ensure Lambda uses correct function names**
         const startMeetingLambda = new lambda.Function(this, 'StartMeetingLambda', {
+            functionName: 'StartMeetingLambda',  // ✅ Explicit function name
             runtime: lambda.Runtime.PYTHON_3_9,
-            name: 'start_meeting',
-            handler: 'start_meeting.lambda_handler',
+            handler: 'start_meeting.lambda_handler',  // ✅ Correct handler
             code: lambda.Code.fromAsset('lambda'),
             environment: {
                 TABLE_NAME: meetingsTable.tableName,
@@ -58,10 +34,10 @@ export class MeetChObsStack extends cdk.Stack {
             role: lambdaRole,
         });
 
-        // Lambda to end meeting
         const endMeetingLambda = new lambda.Function(this, 'EndMeetingLambda', {
+            functionName: 'EndMeetingLambda',  // ✅ Explicit function name
             runtime: lambda.Runtime.PYTHON_3_9,
-            handler: 'end_meeting.lambda_handler',
+            handler: 'end_meeting.lambda_handler',  // ✅ Correct handler
             code: lambda.Code.fromAsset('lambda'),
             environment: {
                 TABLE_NAME: meetingsTable.tableName,
@@ -73,7 +49,7 @@ export class MeetChObsStack extends cdk.Stack {
         meetingsTable.grantReadWriteData(startMeetingLambda);
         meetingsTable.grantReadWriteData(endMeetingLambda);
 
-        // Create API Gateway
+        // API Gateway
         const api = new apigateway.RestApi(this, 'ChimeApi');
 
         const joinResource = api.root.addResource('new').addResource('join').addResource('{bot_name}');
@@ -82,10 +58,6 @@ export class MeetChObsStack extends cdk.Stack {
         const endResource = api.root.addResource('meeting').addResource('{meeting_id}').addResource('end');
         endResource.addMethod('POST', new apigateway.LambdaIntegration(endMeetingLambda));
 
-        // Output API Gateway URL
-        new cdk.CfnOutput(this, 'ApiGatewayUrl', {
-            value: api.url,
-        });
+        new cdk.CfnOutput(this, 'ApiGatewayUrl', { value: api.url });
     }
 }
-
