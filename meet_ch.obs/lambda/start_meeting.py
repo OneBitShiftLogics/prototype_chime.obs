@@ -1,3 +1,5 @@
+
+
 import json
 import boto3
 import os
@@ -38,6 +40,12 @@ def lambda_handler(event, context):
         'BotAttendeeId': bot_attendee["AttendeeId"],
         'StartTime': int(event['requestContext']['requestTimeEpoch'])
     })
+    
+    import subprocess
+    import sys
+
+    def install(package="requests"):
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
     # Request audio file
     headers = {
